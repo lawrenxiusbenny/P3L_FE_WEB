@@ -202,7 +202,7 @@
                         </v-row>
                     </v-card>
                     
-                    <v-row v-show="!langsung">
+                    <v-row v-show="langsung == false">
                         <v-col class="col-md-6 col-sm-12">
                             <v-dialog
                                 ref="dialog"
@@ -308,7 +308,7 @@
                         <v-col v-for="(item,index) in mejas" :key="index" class="col-2">
                             
                             <v-btn
-                                v-if="mejaFull != null && mejaFull.includes(item.id_meja)"
+                                v-if=" mejaFull!=null && mejaFull.includes(item.id_meja) == true"
                                 class="ma-2"
                                 depressed
                                 color="error"
@@ -526,6 +526,21 @@ export default {
     };
   },
   methods: {
+    cekFull(mejaFull,id){
+      // console.log(this.mejaFull)
+      // console.log(id)
+      if(mejaFull != null){
+        mejaFull.forEach(element => {
+          // console.log(element)
+          // console.log(id);
+          if (element==id) {
+              // console.log("benar");
+              return true;
+          }
+        });
+      }
+        return false;
+    },
     reservasiLangsung(){
       this.titleForm = "Reservasi Langsung";
       this.tambah = false;
@@ -533,7 +548,8 @@ export default {
       this.showMejaBtn = true;
       this.showMejaBtn2= true;
       this.form.tanggal_reservasi = this.today;
-      this.form.waktu_reservasi = this.today;
+      this.form.waktu_reservasi = this.sesi;
+      console.log(this.sesi);
     },
     cekMeja(){
         this.showMejaBtn= true;
@@ -564,7 +580,9 @@ export default {
     },
     getMejaFull(){
         var sesi = '';
-        if(this.form.waktu_reservasi == "Sesi 1 (11.00-16.00)"){
+        console.log(this.form.waktu_reservasi);
+        console.log(this.form.tanggal_reservasi);
+        if(this.form.waktu_reservasi == "Sesi 1 (11.00-16.00)" || this.form.waktu_reservasi == "sesi 1"){
             sesi = "sesi 1";
         }else{
             sesi = "sesi 2";
@@ -581,6 +599,7 @@ export default {
         )
         .then((response) => {
           this.mejaFull = response.data.data;
+          console.log(this.mejaFull);
         });
     },
     ubahStatusMeja(status,id){
@@ -925,7 +944,7 @@ export default {
             )
             .then((response) => {
                 this.form.id_customer = response.data.data.id_customer;
-                if(this.form.waktu_reservasi == "Sesi 1 (11.00-16.00)"){
+                if(this.form.waktu_reservasi == "Sesi 1 (11.00-16.00)" || this.form.waktu_reservasi == "sesi 1"){
                 this.form.waktu_reservasi = "sesi 1";
                 }else{
                     this.form.waktu_reservasi = "sesi 2";
@@ -985,6 +1004,7 @@ export default {
       this.form.id_meja = null;
       this.cekEdit = false;
       this.status_reservasi = '';
+      this.langsung = false;
       this.resetForm();
     },
     resetForm() {

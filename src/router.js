@@ -19,9 +19,38 @@ const router = new VueRouter({
                     next('/login');
                 }else{
                     next();
+                    // if(localStorage.getItem('id_role')==1 || localStorage.getItem('id_role')==2){
+                    //     next('/karyawan');
+                    // }else if(localStorage.getItem('id_role')==3){
+                    //     next('/customer');
+                    // }else if(localStorage.getItem('id_role')==4){
+                    //     next('/meja');
+                    // }else{
+                    //     next('/stok-masuk')
+                    // }
                 }
             }),
             children:[
+                {
+                    path: "/",
+                    name: "Karyawan",
+                    meta: {title: 'Karyawan'},
+                    component: importComponent('Karyawan'),
+                    beforeEnter:((to,from,next)=>{
+                        if(localStorage.getItem('id_role')==2 || localStorage.getItem('id_role')==1){
+                            next();
+                        }else{
+                            if(localStorage.getItem('id_role')==3){
+                                next('/customer');
+                            }else if(localStorage.getItem('id_role')==4){
+                                next('/meja');
+                            }else{
+                                next('/stok-masuk')
+                            }
+                            
+                        }
+                    }),
+                },
                 {
                     path: "/karyawan",
                     name: "Karyawan",
@@ -141,24 +170,146 @@ const router = new VueRouter({
                     name: "Data-Kartu",
                     meta: {title: 'Data-Kartu'},
                     component: importComponent('DataKartu'),
+                    beforeEnter:((to,from,next)=>{
+                        if(localStorage.getItem('id_role')==2 ||localStorage.getItem('id_role')==5 ||localStorage.getItem('id_role')==1){
+                            next();
+                        }else{
+                            if(localStorage.getItem('id_role')==3){
+                                next('/customer');
+                            }else if(localStorage.getItem('id_role')==4){
+                                next('/meja');
+                            }
+                        }
+                    }),
                 },
                 {
                     path: "/menu",
                     name: "Menu",
                     meta: {title: 'Menu'},
                     component: importComponent('Menu'),
+                    beforeEnter:((to,from,next)=>{
+                        if(localStorage.getItem('id_role')==2){
+                            next();
+                        }else{
+                            if(localStorage.getItem('id_role')==3){
+                                next('/customer');
+                            }else if(localStorage.getItem('id_role')==4){
+                                next('/meja');
+                            }else if(localStorage.getItem('id_role')==5){
+                                next('/stok-masuk');
+                            }
+                        }
+                    }),
                 },
                 {
                     path: "/pesanan",
                     name: "Pesanan",
                     meta: {title: 'Pesanan'},
                     component: importComponent('Pesanan'),
+                    beforeEnter:((to,from,next)=>{
+                        if(localStorage.getItem('id_role')==2 || localStorage.getItem('id_role')==3 || localStorage.getItem('id_role')==5){
+                            next();
+                        }else{
+                            next('/meja');
+                        }
+                    }),
                 },
                 {
                     path: "/transaksi",
                     name: "Transaksi",
                     meta: {title: 'Transaksi'},
                     component: importComponent('Transaksi'),
+                    beforeEnter:((to,from,next)=>{
+                        if(localStorage.getItem('id_role')==2 || localStorage.getItem('id_role')==4){
+                            next();
+                        }else{
+                            if(localStorage.getItem('id_role')==3){
+                                next('/customer');
+                            }else if(localStorage.getItem('id_role')==5){
+                                next('/stok-masuk');
+                            }
+                        }
+                    }),
+                },
+                {
+                    path: "/laporan-stok",
+                    name: "Laporan-Stok",
+                    meta: {title: 'Laporan-Stok'},
+                    component: importComponent('LaporanStok'),
+                    beforeEnter:((to,from,next)=>{
+                        if(localStorage.getItem('id_role')==2 || localStorage.getItem('id_role')==1){
+                            next();
+                        }else{
+                            if(localStorage.getItem('id_role')==3){
+                                next('/customer');
+                            }else if(localStorage.getItem('id_role')==4){
+                                next('/meja');
+                            }else{
+                                next('/stok-masuk')
+                            }
+                            
+                        }
+                    }),
+                },
+                {
+                    path: "/laporan-pendapatan",
+                    name: "Laporan-Pendapatan",
+                    meta: {title: 'Laporan-Pendapatan'},
+                    component: importComponent('LaporanPendapatan'),
+                    beforeEnter:((to,from,next)=>{
+                        if(localStorage.getItem('id_role')==2 || localStorage.getItem('id_role')==1){
+                            next();
+                        }else{
+                            if(localStorage.getItem('id_role')==3){
+                                next('/customer');
+                            }else if(localStorage.getItem('id_role')==4){
+                                next('/meja');
+                            }else{
+                                next('/stok-masuk')
+                            }
+                            
+                        }
+                    }),
+                },
+                {
+                    path: "/laporan-pengeluaran",
+                    name: "Laporan-Pengeluaran",
+                    meta: {title: 'Laporan-Pengeluaran'},
+                    component: importComponent('LaporanPengeluaran'),
+                    beforeEnter:((to,from,next)=>{
+                        if(localStorage.getItem('id_role')==2 || localStorage.getItem('id_role')==1){
+                            next();
+                        }else{
+                            if(localStorage.getItem('id_role')==3){
+                                next('/customer');
+                            }else if(localStorage.getItem('id_role')==4){
+                                next('/meja');
+                            }else{
+                                next('/stok-masuk')
+                            }
+                            
+                        }
+                    }),
+                },
+                {
+                    path: "/laporan-penjualan",
+                    name: "Laporan-Penjualan",
+                    meta: {title: 'Laporan-Penjualan'},
+                    component: importComponent('LaporanPenjualan'),
+                    beforeEnter:((to,from,next)=>{
+                        if(localStorage.getItem('id_role')==2 || localStorage.getItem('id_role')==1){
+                            next();
+                        }else{
+                            if(localStorage.getItem('id_role')==3){
+                                next('/customer');
+                            }else if(localStorage.getItem('id_role')==4){
+                                next('/meja');
+                            }else{
+                                next('/stok-masuk')
+                            }
+                            
+                        }
+                    }),
                 },
             ]
                 

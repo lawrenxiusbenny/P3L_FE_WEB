@@ -19,7 +19,71 @@
                 </v-list-content>
             </v-list-item>
 
-            <v-list rounded v-if="id_role==2 || id_role==1" dense>
+            <v-list rounded v-if="id_role==1" dense>
+                <!-- Data Master -->
+                <v-list-group
+                    v-model="selectedItem"
+                    :value="true"
+                    color="#E79C9D"
+                    prepend-icon="mdi-folder"
+                    class="mt-3"
+                >
+                    <template v-slot:activator>
+                        <v-list-item-content>
+                            <v-list-item-title class='' style="color:#E79C9D;">Data Master</v-list-item-title>
+                        </v-list-item-content>
+                    </template>
+                    <v-list-item
+                        v-for="item in itemsOwner"
+                        :key="item.title"
+                        class="text-decoration-none ml-5"
+                        link
+                        active-class="pink--text"
+                        router-link
+                        :to="item.to"
+                    >
+                        <v-list-item-icon>
+                            <v-icon small color="#E79C9D">{{item.icon}}</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title v-text="item.title" style="color:#E79C9D;" ></v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list-group>
+
+                <!-- Data Laporan -->
+                <v-list-group
+                    v-model="selectedItem4"
+                    :value="true"
+                    color="#E79C9D"
+                    prepend-icon="mdi-folder"
+                    class="mt-4"
+                >
+                    <template v-slot:activator>
+                        <v-list-item-content>
+                            <v-list-item-title class='' style="color:#E79C9D;">Laporan</v-list-item-title>
+                        </v-list-item-content>
+                    </template>
+                    <v-list-item
+                        v-for="item in itemsLaporan"
+                        :key="item.title"
+                        class="text-decoration-none ml-5"
+                        link
+                        active-class="pink--text"
+                        router-link
+                        :to="item.to"
+                    >
+                        <v-list-item-icon>
+                            <v-icon small color="#E79C9D">{{item.icon}}</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title v-text="item.title" style="color:#E79C9D;" ></v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list-group>
+            </v-list>
+
+            <v-list rounded v-if="id_role==2" dense>
                 <!-- Data Master -->
                 <v-list-group
                     v-model="selectedItem"
@@ -97,6 +161,37 @@
                     </template>
                     <v-list-item
                         v-for="item in itemsTransaksi"
+                        :key="item.title"
+                        class="text-decoration-none ml-5"
+                        link
+                        active-class="pink--text"
+                        router-link
+                        :to="item.to"
+                    >
+                        <v-list-item-icon>
+                            <v-icon small color="#E79C9D">{{item.icon}}</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title v-text="item.title" style="color:#E79C9D;" ></v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list-group>
+
+                <!-- Data Laporan -->
+                <v-list-group
+                    v-model="selectedItem4"
+                    :value="true"
+                    color="#E79C9D"
+                    prepend-icon="mdi-folder"
+                    class="mt-4"
+                >
+                    <template v-slot:activator>
+                        <v-list-item-content>
+                            <v-list-item-title class='' style="color:#E79C9D;">Laporan</v-list-item-title>
+                        </v-list-item-content>
+                    </template>
+                    <v-list-item
+                        v-for="item in itemsLaporan"
                         :key="item.title"
                         class="text-decoration-none ml-5"
                         link
@@ -410,6 +505,16 @@ export default{
             selectedItem: false,
             selectedItem2: false,
             selectedItem3: false,
+            selectedItem4: false,
+            itemsOwner:[
+                { title: "Karyawan", to: "/karyawan", icon: "mdi-account"},
+            ],
+            itemsLaporan:[
+                {title: "Laporan Stok", to:"/laporan-stok",icon:"mdi-file-document"},
+                {title: "Laporan Pendapatan", to:"/laporan-pendapatan",icon:"mdi-file-import"},
+                {title: "Laporan Pengeluaran", to:"/laporan-pengeluaran",icon:"mdi-file-export"},
+                {title: "Laporan Penjualan", to:"/laporan-penjualan",icon:"mdi-file-check"}
+            ],
             itemsMaster:[
                 { title: "Karyawan", to: "/karyawan", icon: "mdi-account"},
                 { title: "Customer", to: "/customer", icon: "mdi-account-multiple"},

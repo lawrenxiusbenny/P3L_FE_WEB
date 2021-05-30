@@ -73,6 +73,9 @@
                                 {{item.metode_pembayaran}}
                             </v-chip>
                         </template>
+                        <template v-slot:[`item.actions`]="{ item }">
+                            <v-icon small color="blue" class="mr-2" @click="showStruk(item)">mdi-cloud-print-outline</v-icon>
+                        </template>
                     </v-data-table>
                 </b-tab>
                 <b-tab title="Pembayaran" class="text">
@@ -163,7 +166,7 @@
                         </v-row>
                     </v-form>
 
-                     <v-row v-if="cekPesanans == null" justify="center" class="my-5">
+                     <v-row v-if="Pesanans == null" justify="center" class="my-5">
                         <v-row class="col-md-8 col-sm-12">
                             <v-card  class="col" style="background-color:#f5e4e4; margin-bottom: 50px">
                                 <v-card-title class="justify-center">
@@ -177,7 +180,7 @@
                     </v-row>
                   </div>
                   
-                  <v-stepper v-model="e1" v-show="showStepper" >
+                  <v-stepper v-model="e1" v-show="showStepper">
                     <v-stepper-header>
                       <v-stepper-step
                         :complete="e1 > 1"
@@ -206,7 +209,7 @@
                       <v-stepper-content step="1">
                           <v-row v-show="showPesanan">
                             <v-col class="col-md-8 col-sm-12">
-                                <v-data-table style="background-color: #fff8f7;" :headers="headers2" :items="cekPesanans" :search="search">
+                                <v-data-table :headers="headers2" :items="Pesanans" :search="search">
                                     <template v-slot:[`item.status_penyajian`]="{ item }">
                                         <v-chip
                                             v-if="item.status_penyajian == 'Served'"
@@ -233,6 +236,9 @@
                                           <img :src="'http://be.atmabbq.xyz/menus/' + item.gambar_menu" width="150px"/>
                                         </div>
                                     </template>
+                                    <template v-slot:[`item.sub_total`]="{ item }">
+                                        Rp{{formatPrice(item.sub_total)}}
+                                    </template>
                                     <template v-slot:[`item.actions`]="{ item }">
                                         <v-icon small color="blue" class="mr-2" @click="editHandler(item)">mdi-pencil</v-icon>
                                         <v-icon small color="red" class="mr-2" @click="deleteHandler(item)">mdi-delete</v-icon>
@@ -254,7 +260,7 @@
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <p>Pajak (Persentase)</p>
+                                                <p>Service</p>
                                             </div>
                                             <div style="align: right;" >
                                                 5%
@@ -262,10 +268,25 @@
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <p>Total Pajak</p>
+ 
+                                            </div>
+                                            <div style="align: right; margin-top:-10px; margin-bottom:10px">
+                                              Rp {{formatPrice(0.05*totalHarga)}}
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <p>Tax</p>
                                             </div>
                                             <div style="align: right;" >
-                                              Rp {{formatPrice(0.05*totalHarga)}}
+                                                10%
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                            </div>
+                                            <div style="align: right; margin-top:-10px; margin-bottom:10px">
+                                              Rp {{formatPrice(0.1*totalHarga)}}
                                             </div>
                                         </div>
                                         <v-divider></v-divider>
@@ -274,7 +295,7 @@
                                                 <h4 class="font-weight-bold">Total</h4>
                                             </div>
                                             <div style="align: right;" >
-                                              Rp {{formatPrice((0.05*totalHarga)+totalHarga)}}
+                                              Rp {{formatPrice((0.1*totalHarga)+(0.05*totalHarga)+totalHarga)}}
                                             </div>
                                         </div>
                                     </v-container>
@@ -385,69 +406,199 @@
                                             ></v-radio>
                                           </v-radio-group>
                                       </v-col>
-                                      <v-col v-if="form.metode_pembayaran=='Non-Cash'" class="col-md-4 col-sm-12">
-                                          <v-select
-                                              placeholder="XXXX XXXX XXXX XXXX"  
-                                              prepend-inner-icon="mdi-numeric"
-                                              v-mask="'#### #### #### ####'"
-                                              :rules="nomorRules"
-                                              :items="kartus" 
-                                              v-model="form.nomor_data_kartu"
-                                              @change="showDataKartu"
-                                              solo
-                                              outlined
-                                              required>
-                                          </v-select>
-                                      </v-col>
                                     </v-row>
-                                    <v-row v-if="showKartu" class="d-flex justify-content-center">
-                                      <v-col  class="col-10 d-flex" style="background-color:#fff8f7; border:2px solid #dddddd; ">
-                                        <div style="width:50%;">
-                                          <v-row>
-                                              <v-col style="width:50%;" class="font-weight-bold">
-                                                  Nomor Kartu
-                                              </v-col>
-                                              <v-col style="width:50%;">
-                                                  {{dataKartu.nomor_kartu}}
-                                              </v-col>
-                                          </v-row>
-                                          <v-row>
-                                              <v-col style="width:50%;" class="font-weight-bold">
-                                                  Nama Pemilik Kartu
-                                              </v-col>
-                                              <v-col style="width:50%;">
-                                                  {{dataKartu.nama_pemilik_kartu}}
-                                              </v-col>
-                                          </v-row>
-                                          <v-row>
-                                              <v-col style="width:50%;" class="font-weight-bold">
-                                                  Kode Verifikasi
-                                              </v-col>
-                                              <v-col style="width:50%;">
-                                                  {{dataKartu.kode_verifikasi}}
-                                              </v-col>
-                                          </v-row>
-                                        </div>
-                                        <div style="width:50%;">
-                                          <v-row>
-                                              <v-col style="width:50%;" class="font-weight-bold">
-                                                  Jenis Kartu
-                                              </v-col>
-                                              <v-col style="width:50%;">
-                                                {{dataKartu.jenis_kartu}}
-                                              </v-col>
-                                          </v-row>
-                                          <v-row>
-                                              <v-col style="width:50%;" class="font-weight-bold">
-                                                  Expired Date Kartu
-                                              </v-col>
-                                              <v-col style="width:50%;">
-                                                  {{dataKartu.expired_date}}
-                                              </v-col>
-                                          </v-row>
-                                        </div>
-                                      </v-col>
-                                    </v-row>
+                                    <div v-if="form.metode_pembayaran=='Non-Cash'">
+                                      <v-row>
+                                        <v-radio-group v-model="cekTambahDataKartu" row>
+                                            <v-radio
+                                              color="success"
+                                              label="Tambah data kartu baru" 
+                                              value="new"
+                                              @click="cekNonCashBaru = true"
+                                            ></v-radio>
+                                            <v-radio
+                                              color="success"
+                                              label="Pakai data kartu lama"
+                                              value="old"
+                                              @click="cekNonCashBaru = false"
+                                            ></v-radio>
+                                          </v-radio-group>
+                                      </v-row>
+                                      <div v-if="cekNonCashBaru">
+                                        <v-row>
+                                          <v-col class="col-12">
+                                              <p>Nama Pemilik Kartu</p>
+                                              <v-text-field
+                                                  placeholder="nama pemilik kartu"  
+                                                  prepend-inner-icon="mdi-account"
+                                                  :rules="nameRules"
+                                                  v-model="form.nama_pemilik_kartu"
+                                                  outlined
+                                                  solo
+                                                  required
+                                              >
+                                              </v-text-field>
+                                          </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col class="col-md-6 col-sm-12">
+                                              <p>Nomor Kartu</p>
+                                              <v-text-field
+                                                  v-model="form.nomor_kartu"
+                                                  placeholder="XXXX XXXX XXXX XXXX"  
+                                                  prepend-inner-icon="mdi-numeric"
+                                                  :rules="nomorRules"
+                                                  outlined
+                                                  solo
+                                                  v-mask="'#### #### #### ####'"
+                                                  required
+                                              >
+                                              </v-text-field>
+                                            </v-col>
+                                            <v-col class="col-md-6 col-sm-12">
+                                              <p>Jenis Kartu</p>
+                                              <v-select
+                                                  placeholder="Jenis Kartu"  
+                                                  prepend-inner-icon="mdi-credit-card"
+                                                  :rules="kartuRules"
+                                                  :items="kartuOption" 
+                                                  v-model="form.jenis_kartu"
+                                                  solo
+                                                  outlined
+                                                  required>
+                                              </v-select>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                          <v-col class="col-md-6 col-sm-12">
+                                            <p>Kode Verifikasi Kartu</p>
+                                            <v-text-field
+                                                placeholder="XXXXXX"  
+                                                v-mask="'######'"
+                                                prepend-inner-icon="mdi-checkbox-marked-circle-outline"
+                                                :rules="verifikasiRules"
+                                                v-model="form.kode_verifikasi"
+                                                outlined
+                                                solo
+                                                required
+                                            >
+                                            </v-text-field>
+                                          </v-col>
+
+                                          <v-col class="col-md-6 col-sm-12">
+                                              <v-dialog
+                                                  ref="dialog"
+                                                  v-model="modal"
+                                                  :return-value.sync="form.expired_date"
+                                                  persistent
+                                                  width="290px"
+                                              >
+                                                  <template v-slot:activator="{ on, attrs }">
+                                                      <p>Expired Date</p>
+                                                  <v-text-field
+                                                      placeholder="YYYY-MM-DD"  
+                                                      prepend-inner-icon="mdi-calendar"
+                                                      :rules="tanggalRules"
+                                                      v-model="form.expired_date"
+                                                      outlined
+                                                      solo
+                                                      readonly
+                                                      v-bind="attrs"
+                                                      v-on="on"
+                                                  ></v-text-field>
+                                                  </template>
+                                                  <v-date-picker
+                                                      v-model="date"
+                                                      scrollable
+                                                      :min="today"
+                                                  >
+                                                  <v-spacer></v-spacer>
+                                                  <v-btn
+                                                      text
+                                                      color="primary"
+                                                      @click="modal = false"
+                                                  >
+                                                      Batal
+                                                  </v-btn>
+                                                  <v-btn
+                                                      text
+                                                      color="primary"
+                                                      @click="$refs.dialog.save(date)"
+                                                  >
+                                                      OK
+                                                  </v-btn>
+                                                  </v-date-picker>
+                                              </v-dialog>
+                                          </v-col>  
+                                        </v-row>
+                                      </div>
+                                      <div v-else>
+                                        <v-row>
+                                          <v-col class="col-md-5 col-sm-12">
+                                            <v-select
+                                                placeholder="XXXX XXXX XXXX XXXX"  
+                                                prepend-inner-icon="mdi-numeric"
+                                                v-mask="'#### #### #### ####'"
+                                                :rules="nomorSelectRules"
+                                                :items="kartus" 
+                                                v-model="form.nomor_data_kartu"
+                                                @change="showDataKartu"
+                                                solo
+                                                outlined
+                                                required>
+                                            </v-select>
+                                          </v-col>
+                                        </v-row>
+                                        <v-row v-if="showKartu" class="d-flex justify-content-center">
+                                          <v-col  class="col-10 d-flex" style="background-color:#fff8f7; border:2px solid #dddddd; ">
+                                            <div style="width:50%;">
+                                              <v-row>
+                                                  <v-col style="width:50%;" class="font-weight-bold">
+                                                      Nomor Kartu
+                                                  </v-col>
+                                                  <v-col style="width:50%;">
+                                                      {{dataKartu.nomor_kartu}}
+                                                  </v-col>
+                                              </v-row>
+                                              <v-row>
+                                                  <v-col style="width:50%;" class="font-weight-bold">
+                                                      Nama Pemilik Kartu
+                                                  </v-col>
+                                                  <v-col style="width:50%;">
+                                                      {{dataKartu.nama_pemilik_kartu}}
+                                                  </v-col>
+                                              </v-row>
+                                              <v-row>
+                                                  <v-col style="width:50%;" class="font-weight-bold">
+                                                      Kode Verifikasi
+                                                  </v-col>
+                                                  <v-col style="width:50%;">
+                                                      {{dataKartu.kode_verifikasi}}
+                                                  </v-col>
+                                              </v-row>
+                                            </div>
+                                            <div style="width:50%;">
+                                              <v-row>
+                                                  <v-col style="width:50%;" class="font-weight-bold">
+                                                      Jenis Kartu
+                                                  </v-col>
+                                                  <v-col style="width:50%;">
+                                                    {{dataKartu.jenis_kartu}}
+                                                  </v-col>
+                                              </v-row>
+                                              <v-row>
+                                                  <v-col style="width:50%;" class="font-weight-bold">
+                                                      Expired Date Kartu
+                                                  </v-col>
+                                                  <v-col style="width:50%;">
+                                                      {{dataKartu.expired_date}}
+                                                  </v-col>
+                                              </v-row>
+                                            </div>
+                                          </v-col>
+                                        </v-row>
+                                      </div>
+                                    </div>
                                   </v-form>
                                 </v-container>
                             </v-container>
@@ -569,6 +720,173 @@
       </v-card>
     </v-dialog>
 
+    <div id="cetak" class="d-flex justify-content-center" style="padding-top:50vh;">
+      <v-card class="p-3" v-show="dialogStruk" max-width="545px" outlined>
+          <v-card-title>
+              <v-row>
+                <v-col class="col-md-4 col-sm-12">
+                    <img src="../assets/akb.png" alt="Logo Atma BBQ">
+                </v-col>
+                <v-col class="col-md-8 col-sm-12">
+                    <h3 class="text-center">ATMA KOREAN BBQ</h3>
+                    <h4 class="text-center mt-2 red--text">FUN PLACE TO GRILL!</h4>
+                    <p class="text-center mt-2 mb-0">Jl. Babarsari No. 43 Yogyakarta</p>
+                    <p class="text-center mt-0 mb-0">552181</p>
+                    <p class="text-center mb-0">Telp. (0274) 487711</p>
+                </v-col>
+              </v-row>
+          </v-card-title>
+          <v-card-body>
+            <v-row>
+                <p class="font-weight-bold mv-3">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p>
+            </v-row>
+            <v-row style="margin-top:-25px">
+              <v-col class="col-md-7">
+                <div class="d-flex">
+                  <div style="width:100px">
+                      <p class="font-weight-bold">Receipt#</p>
+                  </div>
+                  <div style="align: start;" >
+                    {{dataTransaksi.id_transaksi}}
+                  </div>
+                </div>
+                <div class="d-flex">
+                    <div style="width:100px; margin-top:-12px">
+                        <p class="font-weight-bold">Waiter</p>
+                    </div>
+                    <div style="align: start;  margin-top:-12px" >
+                        {{dataReservasi.nama_karyawan}}
+                    </div>
+                </div>
+              </v-col>
+              <v-col class="col-md-5">
+                <div class="d-flex">
+                  <div style="width:100px">
+                      <p class="font-weight-bold">Date</p>
+                  </div>
+                  <div style="align: start;" >
+                      {{dataTransaksi.tanggal_pembayaran}}
+                  </div>
+                </div>
+                <div class="d-flex">
+                  <div style="width:100px; margin-top:-12px">
+                      <p class="font-weight-bold">Time</p>
+                  </div>
+                  <div style="align: start;  margin-top:-12px" >
+                      {{dataTransaksi.waktu_pembayaran}}
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+            <v-row style="margin-top:-30px">
+                <p class="font-weight-bold mv-3">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p>
+            </v-row>
+            <v-row style="margin-top:-25px">
+              <v-col class="col-md-7">
+                <div class="d-flex">
+                  <div style="width:100px; margin-top:-5px">
+                      <p class="font-weight-bold">Table #</p>
+                  </div>
+                  <div style="align: start; margin-top:-5px" >
+                    {{dataTransaksi.no_meja}}
+                  </div>
+                </div>
+              </v-col>
+              <v-col class="col-md-5">
+                <div class="d-flex">
+                  <div style="width:100px; margin-top:-5px">
+                      <p class="font-weight-bold">Customer</p>
+                  </div>
+                  <div style="align: start;  margin-top:-5px" >
+                      {{dataTransaksi.nama_customer}}
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+            <v-row style="padding-left:10px; padding-right:15px;  margin-top:5px">
+              <v-divider></v-divider>
+            </v-row>
+            <v-row style="padding-left:10px; padding-right:15px; margin-top:-10px">
+              <v-divider></v-divider>
+            </v-row>
+            <v-row style="margin-top:-10px">
+              <t-head>
+                <tr>
+                  <th width="70px" class="text-center">Qty</th>
+                  <th width="150px">Item Menu</th>
+                  <th width="140px" style="text-align:end;">Harga</th>
+                  <th width="140px" style="text-align:end;">Sub Total</th>
+                </tr>
+              </t-head>
+              <v-divider style="margin-left:10px; margin-right:15px; margin-top:0px"></v-divider>
+              <t-body style="margin-top:-10px">
+                <tr v-for="(item,index) in Pesanans" :key='index'>
+                  <td width="70px" class="text-center">{{item.jumlah}}</td>
+                  <td width="150px">{{item.nama_menu}}</td>
+                  <td width="140px" style="text-align:end;">Rp {{formatPrice(item.harga_menu)}}</td>
+                  <td width="140px" style="text-align:end;">Rp {{formatPrice(item.harga_menu * item.jumlah)}}</td>
+                </tr>
+                  <p class="font-weight-bold mv-3" style="margin-bottom:-5px">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p>
+                <tr >
+                  <td width="70px" class="text-center"></td>
+                  <td width="150px"></td>
+                  <td width="140px" style="text-align:start;">Sub Total</td>
+                  <td width="140px" style="text-align:end;">Rp {{formatPrice(totalHarga)}}</td>
+                </tr>
+                <tr >
+                  <td width="70px" class="text-center"></td>
+                  <td width="150px"></td>
+                  <td width="140px" style="text-align:start;">Service 5%</td>
+                  <td width="140px" style="text-align:end;">Rp {{formatPrice(totalHarga*0.05)}}</td>
+                </tr>
+                <tr >
+                  <td width="70px" class="text-center"></td>
+                  <td width="150px"></td>
+                  <td width="140px" style="text-align:start;">Tax 10%</td>
+                  <td width="140px" style="text-align:end;">Rp {{formatPrice(totalHarga*0.1)}}</td>
+                </tr>
+                <p class="font-weight-bold mv-3" style="margin-bottom:-5px">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p>
+                <tr>
+                  <td width="70px" class="text-center"></td>
+                  <td width="150px"></td>
+                  <td width="140px" class="font-weight-bold" style="text-align:start;">Total</td>
+                  <td width="140px" class="font-weight-bold" style="text-align:end;">Rp {{formatPrice(totalHarga+totalHarga*0.05+totalHarga*0.1)}}</td>
+                </tr>
+                <v-divider style="margin-top:5px"></v-divider>
+                <v-divider style="margin-top:-12px; margin-bottom:5px"></v-divider>
+                <tr>
+                  <td width="70px" class="text-center"></td>
+                  <td width="150px"></td>
+                  <td width="140px" class="font-weight-bold" style="text-align:start;"></td>
+                  <td width="140px" style="text-align:end;">Total Qty: {{quantity}}</td>
+                </tr>
+                <tr>
+                  <td width="70px" class="text-center"></td>
+                  <td width="150px"></td>
+                  <td width="140px" style="text-align:start;"></td>
+                  <td width="140px" style="text-align:end;">Total Item: {{item}}</td>
+                </tr>
+              </t-body>
+            </v-row>
+            <v-row style="margin-top: 50px">
+              <p style="text-align: end;">{{this.textPrinted}}</p>
+            </v-row>
+            <v-row style="margin-top: -20px">
+              <p style="text-align: end;">Cashier: {{dataTransaksi.nama_karyawan}}</p>
+            </v-row>
+            <v-row>
+                <p class="font-weight-bold mv-3">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p>
+            </v-row>
+            <v-row style="margin-top: 0px;">
+              <h4 style="text-align: center;">THANK YOU FOR YOUR VISIT</h4>
+            </v-row>
+            <v-row style="margin-top:0px">
+                <p class="font-weight-bold mv-3">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p>
+            </v-row>
+          </v-card-body>
+      </v-card>
+    </div>
+
     <v-overlay :value="load">
       <v-progress-circular
         indeterminate
@@ -582,6 +900,7 @@
 </template>
 <script>
 import SweetalertIcon from 'vue-sweetalert-icons';
+import html2PDF from 'jspdf-html2canvas';
 export default {
   name: "Transaksi",
    components: {
@@ -604,6 +923,9 @@ export default {
       search: "",
       modal: false,
 
+      cekNonCashBaru: true,
+      cekTambahDataKartu: "new",
+
       dialogDelete: false,
       headers: [
         {
@@ -618,6 +940,7 @@ export default {
         { text: "ID Reservasi", value: "id_reservasi", align: "center", },
         { text: "Total Harga", value: "total_harga", align: "center", },
         { text: "Metode Pembayaran", value: "metode_pembayaran", align: "center", },
+        { text: "",align: "center", value: "actions" },
       ],
       headers2: [
         {
@@ -627,17 +950,32 @@ export default {
           value: "gambar_menu",
         },
         { text: "Jenis Pesanan",align: "center", value: "nama_menu" },
+        { text: "Harga Menu", align: "center",value: "harga_menu" },
         { text: "Jumlah", align: "center",value: "jumlah" },
+        { text: "Sub Total", align: "center",value: "sub_total" },
         { text: "Status Penyajian", align: "center",value: "status_penyajian" },
         { text: "",align: "center", value: "actions" },
       ],
       transaksis: [],
-      cekPesanans: [],
+      Pesanans: [],
       mejas: [],
       showPesanan: false,
+      kartuOption:["Credit Card","Debit Card"],
+      nameRules: [(v) => !!v || "Nama Pemilik Kartu tidak boleh kosong"],
+      dateRules: [(v) => !!v || "Expired Date Kartu tidak boleh kosong"],
+      kartuRules: [(v) => !!v || "Jenis Kartu tidak boleh kosong"],
+      verifikasiRules: [
+            (v) => !!v || "Nomor Verifikasi Kartu tidak boleh kosong",
+            (v) => (v && v.length == 6) || "Nomor Verifikasi Kartu harus 6 digit", 
+        ],
+      nomorRules: [
+            (v) => !!v || "Nomor Kartu tidak boleh kosong",
+            (v) => (v && v.length == 19) || "Nomor kartu harus 16 Digit", 
+        ],
+
       sesiOption: ["Sesi 1 (11.00-16.00)","Sesi 2 (17.00-21.00)","Langsung"],
       noRules: [(v) => !!v || "Nomor meja tidak boleh kosong"],
-      nomorRules: [(v) => !!v || "Nomor kartu tidak boleh kosong"],
+      nomorSelectRules: [(v) => !!v || "Nomor kartu tidak boleh kosong"],
       tanggalRules: [(v) => !!v || "Tanggal tidak boleh kosong"],
       sesiRules: [(v) => !!v || "Waktu (sesi) tidak boleh kosong"],
       formInput: {
@@ -652,6 +990,13 @@ export default {
         total_harga: null,
         tanggal_pembayaran: null,
         waktu_pembayaran: null,
+        
+        nomor_kartu: null,
+        nama_pemilik_kartu: null,
+        kode_verifikasi: null,
+        jenis_kartu: null,
+        expired_date: null,
+        
         metode_pembayaran: 'Cash',
       },
       reservasi:[],
@@ -671,6 +1016,19 @@ export default {
         jenis_kartu: null,
         expired_date: null,
       },
+      dataTransaksi:{
+        id_transaksi:null,
+        id_data_kartu:null,
+        id_karyawan:null,
+        id_reservasi:null,
+        total_harga:null,
+        tanggal_pembayaran:null,
+        waktu_pembayaran: null,
+        metode_pembayaran: null,
+        nama_cashier: null,
+        no_meja: null,
+        nama_customer: null,
+      },
       kartus:[],
       jumlahRules: [(v) => !!v || "Jumlah pesanan tidak boleh kosong"],
       id_meja:0,
@@ -683,9 +1041,91 @@ export default {
       validTransaksi: "false",
       dialogSave: false,
       totalHarga: 0,
+
+      quantity:0,
+      item: 0,
+      dialogStruk: false,
+      pesananStruks:[],
+      
+      textPrinted:"",
+
     };
   },
   methods: {
+    showStruk(item){
+      this.getDataReservasi(item.id_reservasi);
+      this.dataTransaksi.id_transaksi = item.id_transaksi;
+      this.dataTransaksi.nama_customer = item.nama_customer;
+      
+      var dateParts = item.tanggal_pembayaran.split("-");
+      var jsDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2].substr(0,2));
+
+      var dd = String(jsDate.getDate()).padStart(2, '0');
+      var mm = String(jsDate.getMonth() + 1).padStart(2, '0'); //January is 0!
+      var yyyy = jsDate.getFullYear();
+
+      console.log();
+
+      this.dataTransaksi.tanggal_pembayaran = mm+"/"+dd+"/"+yyyy;
+
+      this.dataTransaksi.waktu_pembayaran = item.waktu_pembayaran.substr(0,5);
+      this.dataTransaksi.nama_karyawan = item.nama_karyawan;
+      this.dataTransaksi.nama_customer = item.nama_customer;
+      this.dataTransaksi.no_meja = item.no_meja;
+      this.dataTransaksi.id_karyawan = item.nama_karyawan;
+      var time="";
+      if(parseInt(item.waktu_pembayaran.substr(0,2))<12){
+        time = "AM";
+      }else{
+        time= "PM";
+      }
+      this.textPrinted = "Printed "+ jsDate.toLocaleString('default', { month: 'short' })+" "+dd+", "+yyyy+" "+ item.waktu_pembayaran+" "+time;
+      this.getPesananStruks(item.id_reservasi);
+      
+      this.dialogStruk = true;
+      this.load = true;
+      let cetak = document.getElementById("cetak");
+      setTimeout(() => this.load = false, 2000);
+      setTimeout(() => html2PDF(cetak,{
+        jsPDF: {
+          format: 'a4',
+        },
+        imageType: 'image/jpeg',
+        html2canvas : {
+          scrollX: 0,
+          scrollY: -window.scrollY,
+        },
+        output : "Struk Transaksi " + item.id_transaksi+".pdf"
+      }), 1000);
+
+      setTimeout(() => this.dialogStruk = false, 2000);
+      
+    },
+    getPesananStruks(id){
+        var url = this.$api + "/pesanan-search-by-reservasi-struk/"+ id;
+        this.$http
+        .get(url
+            ,{
+                headers:{
+                    Authorization: "Bearer " + this.token,
+                }
+            }
+        )
+        .then((response) => {
+            this.Pesanans = response.data.data;
+            this.totalHarga = response.data.total;
+            this.quantity = response.data.quantity;
+            this.item = response.data.item;
+            console.log(response.data.data);
+            console.log(this.Pesanans);
+        })
+        .catch((error) => {
+            this.error_message = error.response.data.message;
+            this.color = "red";
+            this.snackbar = true;
+            this.load = false;
+        });
+    },
     formatPrice(value) {
         let val = (value/1).toFixed(2).replace('.', ',')
         return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
@@ -764,16 +1204,42 @@ export default {
     saveData(){
       var url = this.$api + "/transaksi";
       this.getTanggalHariIni();
+      let newData;
       //data dihapus berdasarkan id
-      let newData={
-        id_data_kartu: this.dataKartu.id_data_kartu,
-        id_karyawan: localStorage.getItem('id_karyawan'),
-        id_reservasi: this.form.id_reservasi,
-        total_harga: this.totalHarga,
-        tanggal_pembayaran: this.today,
-        waktu_pembayaran: this.jamSekarang,
-        metode_pembayaran: this.form.metode_pembayaran
-      };
+      if(this.form.metode_pembayaran == "Non-Cash"){
+        newData={
+          id_data_kartu: this.dataKartu.id_data_kartu,
+          id_karyawan: localStorage.getItem('id_karyawan'),
+          id_reservasi: this.form.id_reservasi,
+          total_harga: this.totalHarga + 0.05*this.totalHarga + 0.1*this.totalHarga,
+          tanggal_pembayaran: this.today,
+          waktu_pembayaran: this.jamSekarang,
+          metode_pembayaran: this.form.metode_pembayaran,
+
+          nama_pemilik_kartu: this.form.nama_pemilik_kartu,
+          nomor_kartu:  this.form.nomor_kartu,
+          jenis_kartu: this.form.jenis_kartu,
+          kode_verifikasi: this.form.kode_verifikasi,
+          expired_date: this.form.expired_date
+        };
+      }else{
+         newData={
+          id_data_kartu: null,
+          id_karyawan: localStorage.getItem('id_karyawan'),
+          id_reservasi: this.form.id_reservasi,
+          total_harga: this.totalHarga + 0.05*this.totalHarga + 0.1*this.totalHarga,
+          tanggal_pembayaran: this.today,
+          waktu_pembayaran: this.jamSekarang,
+          metode_pembayaran: this.form.metode_pembayaran,
+
+          nama_pemilik_kartu: this.form.nama_pemilik_kartu,
+          nomor_kartu:  this.form.nomor_kartu,
+          jenis_kartu: this.form.jenis_kartu,
+          kode_verifikasi: this.form.kode_verifikasi,
+          expired_date: this.form.expired_date
+        };
+      }
+      
       this.dialogSave = false;
       this.load = true;
       this.$http
@@ -842,18 +1308,18 @@ export default {
                     this.color = "green";
                     // this.snackbar = true;
                     this.load = false;
-                    this.cekPesanans = response.data.data;
+                    this.Pesanans = response.data.data;
                     console.log(response.data.data);
-                    console.log(this.cekPesanans);
+                    console.log(this.Pesanans);
                     console.log(this.id_meja);
                     console.log(this.today);
                     console.log(sesi);
-                    this.form.id_reservasi = this.cekPesanans[0].id_reservasi;
-                    if(this.cekPesanans != null){
+                    this.form.id_reservasi = this.Pesanans[0].id_reservasi;
+                    if(this.Pesanans != null){
                       this.showStepper = true;
                     }
                     this.totalHarga = response.data.total;
-                    this.getDataReservasi();
+                    this.getDataReservasi(this.form.id_reservasi);
                     this.showPesanan = true;
                 })
                 .catch((error) => {
@@ -885,8 +1351,9 @@ export default {
           this.kartus = response.data.data;
         });
     },
-    getDataReservasi(){
-      var url = this.$api + "/reservasi/"+this.form.id_reservasi;
+    getDataReservasi(id){
+      console.log(id);
+      var url = this.$api + "/reservasi/"+id;
         this.$http
         .get(url
             ,{
@@ -897,7 +1364,7 @@ export default {
         )
         .then((response) => {
           this.reservasi = response.data.data;
-
+          console.log("berhasil");
           console.log(this.reservasi[0].nama_customer)
           this.dataReservasi.nama_customer = this.reservasi[0].nama_customer;
           this.dataReservasi.jumlah_customer = this.reservasi[0].jumlah_customer;

@@ -552,12 +552,15 @@ export default {
           )
           .then((response) => {
               this.form.id_bahan = response.data.data.id_bahan;
-              if(this.form.jumlah_stok_keluar > response.data.data.stok_bahan){
+              console.log(this.form.id_bahan);
+              console.log(this.form.jumlah_stok_keluar);
+              console.log(response.data.data.stok_bahan);
+              if(parseInt(response.data.data.stok_bahan) < parseInt(this.form.jumlah_stok_keluar)){
                     this.error_message = "Jumlah stok bahan tidak cukup";
                     this.color = "red";
                     this.snackbar = true;
                     this.load = false;
-              }else{
+              }else if(parseInt(response.data.data.stok_bahan) > parseInt(this.form.jumlah_stok_keluar)){
                     this.dataStokKeluar.append("id_bahan", response.data.data.id_bahan);
                     this.dataStokKeluar.append("jumlah_stok_keluar", this.form.jumlah_stok_keluar);
                     this.dataStokKeluar.append("tanggal_keluar", this.form.tanggal_keluar);
