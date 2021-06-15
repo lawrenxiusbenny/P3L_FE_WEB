@@ -364,21 +364,78 @@
         </div>
     </div>
 
-    <v-dialog v-model="dialogQR" persisten max-width="350px">
-      <v-card style="background-color:#fff8f7;">
-        <v-card-title style="background-color: #a6655e" class="font-weight-medium mb-3 justify-center text-h4 text-center">
-          QR CODE
+    <!-- untuk show -->
+    <v-dialog v-model="dialogQR1" persisten max-width="450px">
+      <v-card class="p-3" max-width="450px" outlined>
+        <v-card-title class="font-weight-medium mb-3 justify-center text-h4 text-center">
+          <img width="200px" src="../assets/akb.png" alt="Logo Atma BBQ">
         </v-card-title>
         <v-card-text class="text-center"> 
-            <qrcode :value="qr.id_reservasi" ref="qr" :options="{ width: 200 }"></qrcode>
+            <qrcode style="border:5px solid #000000; border-radius:5px" :value="qr.id_reservasi" ref="qr" :options="{ width: 200 }"></qrcode>
+            <v-row style="margin-top: 40px">
+                <p style="text-align: center; font-weight:bold;">{{this.textPrinted}}</p>
+            </v-row>
+            <v-row style="margin-top: -10px">
+                <p style="text-align: center;">Printed by {{this.namaKaryawan}}</p>
+            </v-row>
+
+            <v-row style="margin-top: 50px">
+                <p class="font-weight-bold mv-3">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p>
+            </v-row>
+            <v-row style="margin-top: -20px">
+                <p style="text-align: center; font-weight:bold;">FUN PLACE TO GRILL</p>
+            </v-row>
+            <v-row style="margin-top: -20px; margin-bottom:5px;">
+                <p class="font-weight-bold mv-3">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p>
+            </v-row>
         </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="secondary" @click="cetakQR">Cetak</v-btn>
-          <v-btn color="grey" @click="dialogQR = false">Tutup</v-btn>
-        </v-card-actions>
       </v-card>
+      <div class="d-flex justify-content-center" style="background-color:white;">    
+        <v-btn
+            class="ma-2"
+            color="secondary" 
+            @click="dialogQR = false, dialogQR1 = false" 
+            style="padding-left: 30px; padding-right: 30px;"
+        >Tutup</v-btn>
+
+        <v-btn
+            class="ma-2"
+            color="primary" 
+            @click="cetakQR"
+            style="padding-left: 30px; padding-right: 30px;"
+        >Cetak</v-btn>
+      </div>
     </v-dialog>
+
+    <!-- untuk cetak -->
+    <div style="margin-top:250px;">
+      <div id="cetakQR" class="d-flex justify-content-center">
+        <v-card v-show="dialogQR" class="p-3" max-width="450px" outlined>
+          <v-card-title class="font-weight-medium mb-3 justify-center text-h4 text-center">
+            <img width="200px" src="../assets/akb.png" alt="Logo Atma BBQ">
+          </v-card-title>
+          <v-card-text class="text-center"> 
+              <qrcode style="border:5px solid #000000; border-radius:5px" :value="qr.id_reservasi" ref="qr" :options="{ width: 200 }"></qrcode>
+              <v-row style="margin-top: 40px">
+                  <p style="text-align: center; font-weight:bold;">{{this.textPrinted}}</p>
+              </v-row>
+              <v-row style="margin-top: -10px">
+                  <p style="text-align: center;">Printed by {{this.namaKaryawan}}</p>
+              </v-row>
+
+              <v-row style="margin-top: 50px">
+                  <p class="font-weight-bold mv-3">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p>
+              </v-row>
+              <v-row style="margin-top: -20px">
+                  <p style="text-align: center; font-weight:bold;">FUN PLACE TO GRILL</p>
+              </v-row>
+              <v-row style="margin-top: -20px; margin-bottom:5px;">
+                  <p class="font-weight-bold mv-3">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p>
+              </v-row>
+          </v-card-text>
+        </v-card>
+      </div>
+    </div>
 
     <v-dialog v-model="dialogConfirm" persisten max-width="400px">
       <v-card style="background-color:#fff8f7;">
@@ -432,7 +489,7 @@
   </v-main>
 </template>
 <script>
-import Jspdf from 'jspdf'
+import html2PDF from 'jspdf-html2canvas';
 
 export default {
   name: "Reservasi",
@@ -470,6 +527,7 @@ export default {
       dialogTerisi: false,
       dialogKosong: false,
       dialogQR: false,
+      dialogQR1: false,
       headers: [
         {
           text: "Tanggal Reservasi",
@@ -512,6 +570,8 @@ export default {
         waktu_reservasi: null, 
         jumlah_customer: null,
       },
+      textPrinted:"",
+      namaKaryawan:"",
       deleteId: "",
       ubahId: "",
       editId: "",
@@ -664,6 +724,23 @@ export default {
           this.dataCustomer = response.data.data;
         });
     },
+    getDataKaryawan(){
+        var url = this.$api + "/karyawan/"+this.id_karyawan;
+        this.$http
+        .get(url
+            ,{
+            headers:{
+                Authorization: "Bearer " + this.token,
+            }
+            }
+        )
+        .then((response) => {
+            this.namaKaryawan = response.data.data.nama_karyawan;
+        })
+        .catch((error) => {
+            this.error_message = error.response.data.message;
+        });
+    },
     readData() {
       var url = this.$api + "/reservasi";
       this.load = true;
@@ -708,6 +785,38 @@ export default {
         .then((response) => {
           this.customerName = response.data.data;
         });
+    },
+    getTextPrinted(){
+        var today = new Date();
+
+        var dd = String(today.getDate()).padStart(2, '0');
+        // var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = today.getFullYear();
+        
+        var jam = String(today.getHours());
+        var menit = String(today.getMinutes());
+        var detik = String(today.getSeconds());
+
+        if(jam<10){
+            jam = "0"+jam;
+        }
+
+        if(menit<10){
+            menit = "0"+menit;
+        }
+
+        if(detik<10){
+            detik = "0"+detik;
+        }
+
+        var time="";
+        if(jam<12){
+            time = "AM";
+        }else{
+            time= "PM";
+        }
+        this.textPrinted = "Printed "+ today.toLocaleString('default', { month: 'short' })+" "+dd+", "+yyyy+" "
+                            + jam +":"+menit+":"+detik+" "+time;
     },
     getTanggalHariIni(){
         var sesi = '';
@@ -757,17 +866,27 @@ export default {
       this.qr.tanggal_reservasi = item.tanggal_reservasi;
       this.qr.waktu_reservasi = item.waktu_reservasi;
       this.qr.jumlah_customer = item.jumlah_customer;
+      this.getTextPrinted();
+      this.getDataKaryawan();
       this.dialogQR = true;
+      this.dialogQR1 = true;
     },
-    cetakQR() {
+    cetakQR(){
+      this.dialogQR1 =false;
       this.load = true;
-      const doc = new Jspdf()
-      const contentHtml = this.$refs.qr.$el
-      const image = contentHtml.toDataURL('image/jpeg', 0.8)
-      doc.addImage(image, 'JPEG', 20, 20)
-      setTimeout(() => this.load = false, 1000);
-      setTimeout(() => doc.save('QR-Code.pdf'), 1000);
-      this.dialogQR = false;
+      let cetak = document.getElementById("cetakQR");
+      setTimeout(() => this.load = false, 2000);
+      setTimeout(() => html2PDF(cetak,{
+          jsPDF: {
+          },
+          imageType: 'image/jpeg',
+          html2canvas : {
+          scrollX: 0,
+          scrollY: -window.scrollY,
+          },
+          output : "QR-Code.pdf"
+      }), 1000);
+      setTimeout(() => this.dialogQR = false, 2500);
     },
     Tambah() {      
       console.log(this.customerName);

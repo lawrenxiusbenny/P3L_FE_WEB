@@ -450,7 +450,7 @@ export default {
             scrollX: 0,
             scrollY: -window.scrollY,
             },
-            output : "Laporan Pengeluaran bulanan tahun " + this.form2.tahun1+" s/d "+ this.form2.tahun2+".pdf"
+            output : "Laporan Pengeluaran tahun " + this.form2.tahun1+" s/d "+ this.form2.tahun2+".pdf"
         }), 1000);
     },
     generateLaporan2(){
